@@ -7,7 +7,7 @@ stages:
     - data_collection.test_size
     outs:
     - data/raw
-  pre_processing:
+  pre_preprocessing:
     cmd: python src/data/data_prep.py
     deps:
     - data/raw
@@ -30,3 +30,11 @@ stages:
     - src/model/model_eval.py
     metrics:
     - reports/metrics.json
+    outs:
+    - reports/run_info.json 
+
+  model_registration:
+    cmd: python src/model/model_reg.py
+    deps:
+    - reports/run_info.json
+    - src/model/model_reg.py

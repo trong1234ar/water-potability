@@ -18,9 +18,13 @@ def load_params(filepath : str) -> float:
 
 def load_data(filepath : str) -> pd.DataFrame :
     try:
+        # Works for both local files and URLs
         return pd.read_csv(filepath)
     except Exception as e:
-        raise Exception(f"Error loading data from {filepath} :{e}")
+        if filepath.startswith('http'):
+            raise Exception(f"Error loading data from URL {filepath}. Check internet connection and URL validity: {e}")
+        else:
+            raise Exception(f"Error loading data from file {filepath}: {e}")
 
 # data = pd.read_csv(r"C:\Users\SFL-3\water_potability.csv")
 
@@ -42,8 +46,8 @@ def save_data(df : pd.DataFrame, filepath: str) -> None:
     
 
 def main():
-    data_filepath = r"C:\Study\Personal\Project\water-potability-prediction\water_potability.csv"
-    params_filepath = "C:\Study\Personal\Project\water-potability-prediction\params.yaml"
+    data_filepath = "https://raw.githubusercontent.com/DataThinkers/Datasets/main/DS/water_potability.csv"
+    params_filepath = "params.yaml"
     raw_data_path = os.path.join("data","raw")
 # data_path = os.path.join("data","raw")
     try:
@@ -51,7 +55,7 @@ def main():
         test_size = load_params(params_filepath)
         train_data,test_data = split_data(data, test_size)
 
-        os.makedirs(raw_data_path)
+        os.makedirs(raw_data_path, exist_ok=True)
 
         save_data(train_data,os.path.join(raw_data_path,"train.csv"))
         save_data(test_data, os.path.join(raw_data_path,"test.csv"))
