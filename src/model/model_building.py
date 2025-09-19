@@ -1,6 +1,7 @@
 import pandas as pd
 import yaml
 import pickle
+import os
 from sklearn.ensemble import RandomForestClassifier
 
 def load_params(params_path: str) -> int:
@@ -35,6 +36,9 @@ def train_model(X: pd.DataFrame, y: pd.Series, n_estimators: int) -> RandomFores
 
 def save_model(model: RandomForestClassifier, model_name: str) -> None:
     try:
+        # Create the directory if it doesn't exist
+        os.makedirs(os.path.dirname(model_name), exist_ok=True)
+        
         with open(model_name, "wb") as file:
             pickle.dump(model, file)
     except Exception as e:
