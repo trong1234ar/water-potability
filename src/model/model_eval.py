@@ -11,18 +11,27 @@ from mlflow import log_metric, log_param, log_artifact
 import mlflow.sklearn
 import dagshub
 import mlflow
+import os
 from mlflow.models import infer_signature
 
 # Initialize DagsHub for experiment tracking
 # Initialize DagsHub for experiment tracking
-dagshub.init(repo_owner='trong1234ar', repo_name='water-potability', mlflow=True)
+# dagshub.init(repo_owner='trong1234ar', repo_name='water-potability', mlflow=True)
 
+# mlflow.set_experiment("DVC_Pipeline")
+# THIS IS DUETO FOR GITHUB ACTION CAN ACCESS - LOCALLY WILL NOT NEED
+dagshub_token = os.getenv("DAGSHUB_TOKEN")
+if not dagshub_token:
+    raise ValueError("DAGSHUB_TOKEN environment variable is not set")
+os.environ["MLFLOW_TRACKING_TOKEN"] = dagshub_token
+os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+
+dagshub_url = "https://dagshub.com"
+repo_owner = "trong1234ar"
+repo_name = "water-potability"
+mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
 mlflow.set_experiment("DVC_Pipeline")
 
-mlflow.set_tracking_uri("https://dagshub.com/trong1234ar/water-potability.mlflow")
-
-
-#mlflow.set_experiment("water-potability-prediction")
 
 def load_data(filepath: str) -> pd.DataFrame:
     try:

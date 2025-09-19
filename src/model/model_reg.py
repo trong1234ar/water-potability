@@ -2,12 +2,22 @@ import json
 from mlflow.tracking import MlflowClient
 import mlflow
 import dagshub
-
+import os
 # --- Setup
-dagshub.init(repo_owner="trong1234ar", repo_name="water-potability", mlflow=True)
-mlflow.set_experiment("DVC_Pipeline")
-mlflow.set_tracking_uri("https://dagshub.com/trong1234ar/water-potability.mlflow")
+# dagshub.init(repo_owner="trong1234ar", repo_name="water-potability", mlflow=True)
+# mlflow.set_experiment("DVC_Pipeline")
+# mlflow.set_tracking_uri("https://dagshub.com/trong1234ar/water-potability.mlflow")
+dagshub_token = os.getenv("DAGSHUB_TOKEN")
+if not dagshub_token:
+    raise ValueError("DAGSHUB_TOKEN environment variable is not set")
+os.environ["MLFLOW_TRACKING_TOKEN"] = dagshub_token
+os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
 
+dagshub_url = "https://dagshub.com"
+repo_owner = "trong1234ar"
+repo_name = "water-potability"
+mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
+mlflow.set_experiment("DVC_Pipeline")
 # --- Load run info
 with open("reports/run_info.json", "r") as f:
     run_info = json.load(f)
