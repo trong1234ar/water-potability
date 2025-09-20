@@ -23,22 +23,15 @@ from mlflow.models import infer_signature
 dagshub_token = os.getenv("DAGSHUB_TOKEN")
 if not dagshub_token:
     raise ValueError("DAGSHUB_TOKEN environment variable is not set")
-
 # Set environment variables for MLflow authentication
-os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
+os.environ["MLFLOW_TRACKING_TOKEN"] = dagshub_token
 os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
-
 # Configure DagsHub MLflow tracking
 dagshub_url = "https://dagshub.com"
 repo_owner = "trong1234ar"
 repo_name = "water-potability"
-
 # Initialize DagsHub connection
 dagshub.init(repo_owner=repo_owner, repo_name=repo_name, mlflow=True)
-
-# Set MLflow tracking URI
-mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
-
 # Set experiment (this should work now with proper authentication)
 try:
     mlflow.set_experiment("DVC_Pipeline")
@@ -52,6 +45,8 @@ except Exception as e:
         print(f"Error creating experiment: {create_error}")
         # Use default experiment as fallback
         print("Using default experiment")
+# Set MLflow tracking URI
+mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
 
 
 def load_data(filepath: str) -> pd.DataFrame:
