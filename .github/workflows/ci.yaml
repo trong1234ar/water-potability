@@ -5,6 +5,9 @@ on: push
 jobs:
   project-testing:
     runs-on: ubuntu-latest
+    
+    env:
+      DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
 
     steps:
       # Step 1: Checkout repo
@@ -27,7 +30,5 @@ jobs:
 
       # Step 4: Run DVC pipeline
       - name: Run DVC pipeline
-        env:
-          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           dvc repro
