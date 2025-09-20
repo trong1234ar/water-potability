@@ -10,7 +10,6 @@ jobs:
       DAGSHUB_USER: trong1234ar
       DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
       MLFLOW_TRACKING_URI: https://dagshub.com/trong1234ar/water-potability.mlflow
-      MLFLOW_TRACKING_USERNAME: ${{ env.DAGSHUB_USER }}
       MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
 
     steps:
