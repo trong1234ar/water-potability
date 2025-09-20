@@ -21,7 +21,7 @@ dagshub_token = "6107d8a709e452caeccfaa8937ebed74cc0f1998"
 if not dagshub_token:
     raise ValueError("DAGSHUB_TOKEN environment variable is not set")
 # Set environment variables for MLflow authentication
-os.environ["MLFLOW_TRACKING_USERNAME"] = "trong1234ar"
+os.environ["MLFLOW_TRACKING_TOKEN"] = dagshub_token
 os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
 # Configure DagsHub MLflow tracking
 dagshub_url = "https://dagshub.com"
