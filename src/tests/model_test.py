@@ -107,7 +107,7 @@ class TestModelLoading(unittest.TestCase):
             self.assertGreater(len(latest_versions), 0, f"No versions found for model '{model_name}'")
             
             # Get the latest version (usually the first one or highest version number)
-            latest_version = max(clear, key=lambda v: int(v.version))
+            latest_version = max(latest_versions, key=lambda v: int(v.version))
             print(f"Testing latest model version: {latest_version.version}")
             
             # Get the run associated with this model version
