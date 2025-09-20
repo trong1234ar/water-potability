@@ -30,3 +30,7 @@ jobs:
           DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
         run: |
           dvc repro
+      - name: Run model test
+        run: |
+          python -m unittest src/tests/model_test.py
+        
