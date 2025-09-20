@@ -22,15 +22,22 @@ except ImportError:
     pass  # dotenv not installed, continue without it
 
 # Initialize DagsHub for experiment tracking
-# Initialize DagsHub for experiment tracking
-# dagshub.init(repo_owner='trong1234ar', repo_name='water-potability', mlflow=True)
-
-# mlflow.set_experiment("DVC_Pipeline")
-# THIS IS DUETO FOR GITHUB ACTION CAN ACCESS - LOCALLY WILL NOT NEED
-dagshub_token = "6107d8a709e452caeccfaa8937ebed74cc0f1998"
-# dagshub_token = os.getenv("DAGSHUB_TOKEN")
+# THIS IS DUE TO GITHUB ACTION CAN ACCESS - LOCALLY WILL NOT NEED
+dagshub_token = os.getenv("DAGSHUB_USER_TOKEN") or os.getenv("DAGSHUB_TOKEN")
+if dagshub_token:
+    print("DAGSHUB_TOKEN is set")
+else:
+    print("DAGSHUB_TOKEN is not set")
+# Try to use cached token if environment variable is not set
 if not dagshub_token:
-    raise ValueError("DAGSHUB_TOKEN environment variable is not set")
+    try:
+        # This will use the token from dagshub login command or add_app_token()
+        dagshub.auth.add_app_token(dagshub_token) if dagshub_token else None
+    except:
+        pass
+
+if not dagshub_token:
+    raise ValueError("DAGSHUB_USER_TOKEN or DAGSHUB_TOKEN environment variable is not set")
 # Set environment variables for MLflow authentication
 os.environ["MLFLOW_TRACKING_TOKEN"] = dagshub_token
 os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
