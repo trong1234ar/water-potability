@@ -14,6 +14,13 @@ import mlflow
 import os
 from mlflow.models import infer_signature
 
+# Try to load .env file for local development
+try:
+    from dotenv import load_dotenv
+    load_dotenv()  # This loads .env file if it exists
+except ImportError:
+    pass  # dotenv not installed, continue without it
+
 # Initialize DagsHub for experiment tracking
 # Initialize DagsHub for experiment tracking
 # dagshub.init(repo_owner='trong1234ar', repo_name='water-potability', mlflow=True)
@@ -24,7 +31,7 @@ dagshub_token = os.getenv("DAGSHUB_TOKEN")
 if not dagshub_token:
     raise ValueError("DAGSHUB_TOKEN environment variable is not set")
 # Set environment variables for MLflow authentication
-os.environ["MLFLOW_TRACKING_TOKEN"] = dagshub_token
+os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
 os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
 # Configure DagsHub MLflow tracking
 dagshub_url = "https://dagshub.com"
