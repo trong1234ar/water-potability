@@ -17,7 +17,7 @@ except ImportError:
 
 # mlflow.set_experiment("DVC_Pipeline")
 # THIS IS DUETO FOR GITHUB ACTION CAN ACCESS - LOCALLY WILL NOT NEED
-dagshub_token = os.getenv("DAGSHUB_TOKEN")
+dagshub_token = "6107d8a709e452caeccfaa8937ebed74cc0f1998"
 if not dagshub_token:
     raise ValueError("DAGSHUB_TOKEN environment variable is not set")
 # Set environment variables for MLflow authentication
