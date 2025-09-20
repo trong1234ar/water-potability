@@ -5,13 +5,6 @@ on: push
 jobs:
   project-testing:
     runs-on: ubuntu-latest
-
-    env:
-      DAGSHUB_USER: trong1234ar
-      DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
-      MLFLOW_TRACKING_URI: https://dagshub.com/trong1234ar/water-potability.mlflow
-      MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
-
     steps:
       # Step 1: Checkout repo
       - name: Checkout repository
@@ -33,5 +26,7 @@ jobs:
 
       # Step 4: Run DVC pipeline
       - name: Run DVC pipeline
+        env:
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           dvc repro
