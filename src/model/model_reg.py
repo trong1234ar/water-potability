@@ -29,6 +29,7 @@ repo_owner = "trong1234ar"
 repo_name = "water-potability"
 # Initialize DagsHub connection
 dagshub.init(repo_owner=repo_owner, repo_name=repo_name, mlflow=True)
+mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
 # Set experiment (this should work now with proper authentication)
 try:
     mlflow.set_experiment("DVC_Pipeline")
@@ -43,7 +44,6 @@ except Exception as e:
         # Use default experiment as fallback
         print("Using default experiment")
 # Set MLflow tracking URI
-mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
 # --- Load run info
 with open("reports/run_info.json", "r") as f:
     run_info = json.load(f)
