@@ -137,6 +137,9 @@ def evaluation_model(model, X_test: pd.DataFrame, y_test: pd.Series, model_name:
 
 def save_metrics(metrics: dict, metrics_path: str) -> None:
     try:
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
+        
         with open(metrics_path, 'w') as file:
             json.dump(metrics, file, indent=4)
     except Exception as e:
