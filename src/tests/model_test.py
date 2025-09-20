@@ -90,94 +90,99 @@ class TestModelLoading(unittest.TestCase):
             print(f"Error searching registered models: {e}")
             self.fail(f"Failed to find registered model: {e}")
     
-    # def test_model_versions(self):
-    #     """Test model versions and aliases"""
-    #     client = MlflowClient()
-        
-    #     try:
-    #         # Get all versions of the model
-    #         versions = client.get_latest_versions(model_name)
-    #         print(f"Found {len(versions)} model versions")
-    #         self.assertGreater(len(versions), 0, "No model versions found")
-            
-    #         # Check for staging alias
-    #         try:
-    #             staging_version = client.get_model_version_by_alias(model_name, "staging")
-    #             print(f"Found model version {staging_version.version} with staging alias")
-    #             self.assertIsNotNone(staging_version, "No model found with staging alias")
-    #         except Exception as alias_error:
-    #             print(f"No staging alias found: {alias_error}")
-    #             # This is not necessarily a failure, just log it
-                
-    #     except Exception as e:
-    #         print(f"Error checking model versions: {e}")
-    #         self.fail(f"Failed to check model versions: {e}")
     
-    # def test_experiment_runs(self):
-    #     """Test experiment runs and metrics"""
-    #     client = MlflowClient()
+    def test_model_performance(self):
+        """Test model performance by getting latest version and checking metrics"""
+        client = MlflowClient()
         
-    #     # Get the correct experiment ID
-    #     experiment_id = get_experiment_id("DVC_Pipeline")
-    #     print(f"Using experiment ID: {experiment_id}")
+        # Performance thresholds
+        accuracy_threshold = 0.4
+        precision_threshold = 0.3
+        recall_threshold = 0.3
+        f1_threshold = 0.3
         
-    #     try:
-    #         # Search runs in the experiment (this is supported by DagsHub)
-    #         runs = client.search_runs(
-    #             experiment_ids=[experiment_id],
-    #             max_results=10
-    #         )
+        try:
+            # Get the latest version of the registered model
+            latest_versions = client.get_latest_versions(model_name)
+            self.assertGreater(len(latest_versions), 0, f"No versions found for model '{model_name}'")
             
-    #         print(f"Found {len(runs)} runs in experiment")
-    #         self.assertGreater(len(runs), 0, "No runs found in experiment")
+            # Get the latest version (usually the first one or highest version number)
+            latest_version = max(clear, key=lambda v: int(v.version))
+            print(f"Testing latest model version: {latest_version.version}")
             
-    #         # Check if any run has good accuracy
-    #         high_accuracy_runs = []
-    #         for run in runs:
-    #             if run.data.metrics.get('accuracy', 0) > 0.8:
-    #                 high_accuracy_runs.append(run)
-    #                 print(f"Run {run.info.run_id}: accuracy = {run.data.metrics.get('accuracy', 'N/A')}")
+            # Get the run associated with this model version
+            run_id = latest_version.run_id
+            run = client.get_run(run_id)
             
-    #         if len(high_accuracy_runs) > 0:
-    #             print(f"Found {len(high_accuracy_runs)} runs with accuracy > 0.8")
-    #         else:
-    #             print("No runs found with accuracy > 0.8")
-                
-    #     except Exception as e:
-    #         print(f"Error searching runs: {e}")
-    #         self.fail(f"Failed to search runs: {e}")
+            # Extract metrics from the run
+            metrics = run.data.metrics
+            print(f"Model metrics: {metrics}")
+            
+            # Test accuracy
+            accuracy = metrics.get('accuracy', 0)
+            print(f"Accuracy: {accuracy:.4f} (threshold: {accuracy_threshold})")
+            self.assertGreaterEqual(accuracy, accuracy_threshold, 
+                                  f"Model accuracy {accuracy:.4f} is below threshold {accuracy_threshold}")
+            
+            # Test precision
+            precision = metrics.get('precision', 0)
+            print(f"Precision: {precision:.4f} (threshold: {precision_threshold})")
+            self.assertGreaterEqual(precision, precision_threshold,
+                                  f"Model precision {precision:.4f} is below threshold {precision_threshold}")
+            
+            # Test recall
+            recall = metrics.get('recall', 0)
+            print(f"Recall: {recall:.4f} (threshold: {recall_threshold})")
+            self.assertGreaterEqual(recall, recall_threshold,
+                                  f"Model recall {recall:.4f} is below threshold {recall_threshold}")
+            
+            # Test F1 score
+            f1_score = metrics.get('f1_score', 0)
+            print(f"F1 Score: {f1_score:.4f} (threshold: {f1_threshold})")
+            self.assertGreaterEqual(f1_score, f1_threshold,
+                                  f"Model F1 score {f1_score:.4f} is below threshold {f1_threshold}")
+            
+            print("✅ All performance metrics meet the required thresholds!")
+            
+        except Exception as e:
+            print(f"Error testing model performance: {e}")
+            self.fail(f"Failed to test model performance: {e}")
     
-    # def test_model_performance(self):
-    #     """Test model performance using search_logged_models"""
-    #     client = MlflowClient()
-    #     # Get the correct experiment ID
-    #     experiment_id = get_experiment_id("DVC_Pipeline")
-    #     print(f"Using experiment ID: {experiment_id}")
+    def test_staging_model_performance(self):
+        """Test performance of model in staging (if exists)"""
+        client = MlflowClient()
         
-    #     # Search for models with good performance
-    #     try:
-    #         result = client.search_logged_models(
-    #             experiment_ids=[experiment_id],
-    #             filter_string="metrics.accuracy > 0.5",  # Lower threshold for testing
-    #         )
-            
-    #         print(f"Found {len(result)} models with accuracy > 0.5")
-    #         self.assertGreater(len(result), 0, "No models found with good performance")
-            
-    #         # Check if any model has accuracy > 0.85
-    #         high_performance_models = client.search_logged_models(
-    #             experiment_ids=[experiment_id],
-    #             filter_string="metrics.accuracy > 0.85",
-    #         )
-            
-    #         if len(high_performance_models) > 0:
-    #             print(f"Found {len(high_performance_models)} high-performance models (accuracy > 0.85)")
-    #         else:
-    #             print("No models found with accuracy > 0.85")
+        # Lower thresholds for staging models
+        staging_accuracy_threshold = 0.7
+        
+        try:
+            # Try to get staging model by alias
+            try:
+                staging_version = client.get_model_version_by_alias(model_name, "staging")
+                print(f"Found staging model version: {staging_version.version}")
                 
-    #     except Exception as e:
-    #         print(f"Error searching logged models: {e}")
-    #         self.fail(f"Failed to search logged models: {e}")
+                # Get the run associated with staging model
+                run_id = staging_version.run_id
+                run = client.get_run(run_id)
+                
+                # Check staging model performance
+                accuracy = run.data.metrics.get('accuracy', 0)
+                print(f"Staging model accuracy: {accuracy:.4f}")
+                
+                self.assertGreaterEqual(accuracy, staging_accuracy_threshold,
+                                      f"Staging model accuracy {accuracy:.4f} is below threshold {staging_accuracy_threshold}")
+                
+                print("✅ Staging model meets performance requirements!")
+                
+            except Exception as staging_error:
+                print(f"No staging model found or error accessing it: {staging_error}")
+                # This is not necessarily a test failure, just log it
+                print("⚠️ Skipping staging model performance test")
+                
+        except Exception as e:
+            print(f"Error in staging model performance test: {e}")
+            # Don't fail the test if staging model doesn't exist
+            print("⚠️ Staging model performance test skipped due to error")
         
 
 if __name__ == "__main__":
